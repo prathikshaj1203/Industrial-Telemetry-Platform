@@ -11,3 +11,30 @@ kafka-logs/
 zookeeper/
 
 postgres-data/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Airflow
+airflow/logs/
+airflow/plugins/__pycache__/
+
+# Environment
+.env
+
+# VS Code
+.vscode/
+
+# Mac/Linux
+.DS_Store
+
+# Kafka
+*.log
+
+# PostgreSQL
+*.db
+
+# Docker
+docker-data/
