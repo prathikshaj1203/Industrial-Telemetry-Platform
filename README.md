@@ -3,58 +3,66 @@
 
 ### Real-Time Industrial Telemetry & Predictive Maintenance Pipeline
 
-A production-inspired industrial data engineering platform that simulates real-time machine telemetry, streams telemetry events through Apache Kafka, validates incoming data, stores telemetry into PostgreSQL, and prepares the foundation for predictive maintenance and industrial analytics systems.
+Industrial Telemetry Platform is a production-inspired industrial monitoring system that simulates real-time machine telemetry, streams telemetry events using Apache Kafka, validates incoming data, stores telemetry into PostgreSQL, and prepares the foundation for predictive maintenance and industrial analytics.
 
 ---
 
-# Architecture
+## System Architecture
 
-Telemetry Simulator  
-→ Kafka Producer  
-→ Apache Kafka  
-→ Validated Consumer  
-→ PostgreSQL Storage  
+```text
+Telemetry Simulator
+        ↓
+Kafka Producer
+        ↓
+Apache Kafka
+        ↓
+Validated Consumer
+        ↓
+PostgreSQL Storage
 
-Invalid telemetry events are redirected to a Dead Letter Queue (DLQ) for fault-tolerant processing.
-
----
-
-# Features
-
-- Real-time industrial telemetry simulation
-- Apache Kafka streaming pipeline
-- Producer-consumer architecture
-- PostgreSQL telemetry storage
-- Schema validation layer
-- Dead Letter Queue (DLQ) handling
-- Fault-tolerant event processing
-- Automotive manufacturing telemetry simulation
+Invalid Events
+        ↓
+Dead Letter Queue (DLQ)
+````
 
 ---
 
-# Simulated Machines
+## Features
 
-- Robotic Welding Arm
-- Conveyor Belt System
-- CNC Machining Unit
-- Hydraulic Press
-- Paint Booth Ventilation
-
----
-
-# Tech Stack
-
-| Layer | Technology |
-|------|------|
-| Language | Python |
-| Streaming | Apache Kafka |
-| Database | PostgreSQL |
-| Containerization | Docker |
-| Validation | Custom Validation Layer |
+* Real-time industrial telemetry simulation
+* Apache Kafka streaming pipeline
+* Producer-consumer architecture
+* PostgreSQL telemetry storage
+* Data validation layer
+* Dead Letter Queue (DLQ) handling
+* Fault-tolerant event processing
+* Automotive manufacturing telemetry simulation
 
 ---
 
-# Example Telemetry Event
+## Simulated Industrial Machines
+
+* Robotic Welding Arm
+* Conveyor Belt System
+* CNC Machining Unit
+* Hydraulic Press
+* Paint Booth Ventilation System
+
+---
+
+## Tech Stack
+
+| Layer                | Technology              |
+| -------------------- | ----------------------- |
+| Programming Language | Python                  |
+| Streaming Platform   | Apache Kafka            |
+| Database             | PostgreSQL              |
+| Containerization     | Docker                  |
+| Data Validation      | Custom Validation Layer |
+
+---
+
+## Example Telemetry Event
 
 ```json
 {
@@ -67,11 +75,11 @@ Invalid telemetry events are redirected to a Dead Letter Queue (DLQ) for fault-t
   "rpm": 997,
   "power_usage": 620
 }
-````
+```
 
 ---
 
-# Project Structure
+## Project Structure
 
 ```text
 industrial-telemetry-platform/
@@ -89,39 +97,63 @@ industrial-telemetry-platform/
 
 ---
 
-# Setup
+## Setup Instructions
 
-## Clone Repository
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/your-username/industrial-telemetry-platform.git
 ```
 
-## Install Dependencies
+### 2. Create Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+### 3. Activate Environment
+
+#### Windows
+
+```bash
+venv\Scripts\activate
+```
+
+---
+
+### 4. Install Dependencies
 
 ```bash
 pip install kafka-python psycopg2
 ```
 
-## Start Kafka Infrastructure
+---
+
+### 5. Start Kafka Infrastructure
 
 ```bash
 docker compose up -d
 ```
 
-## Run Producer
+---
+
+### 6. Run Producer
 
 ```bash
 python producer.py
 ```
 
-## Run Consumer
+---
+
+### 7. Run Validated Consumer
 
 ```bash
 python validated_consumer.py
 ```
 
-## Run DLQ Consumer
+---
+
+### 8. Run DLQ Consumer
 
 ```bash
 python dlq_consumer.py
@@ -129,7 +161,7 @@ python dlq_consumer.py
 
 ---
 
-# Future Enhancements
+## Future Enhancements
 
 * Apache Airflow orchestration
 * ML-based anomaly detection
@@ -140,7 +172,7 @@ python dlq_consumer.py
 
 ---
 
-# Engineering Concepts
+## Engineering Concepts Implemented
 
 * Event-Driven Architecture
 * Distributed Streaming Systems
@@ -151,9 +183,9 @@ python dlq_consumer.py
 
 ---
 
-# Author
+## Author
 
-Prathiksha J
+**Prathiksha J**
 
 ```
 ```
