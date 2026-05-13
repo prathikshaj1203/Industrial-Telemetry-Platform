@@ -1,208 +1,159 @@
-# Industrial Telemetry Platform
+# 🏭 Industrial Telemetry Platform
 
-A real-time industrial telemetry and predictive monitoring platform built using Kafka, PostgreSQL, Docker, and Apache Airflow.
+## Real-Time Industrial Monitoring & Predictive Maintenance System
 
-This project simulates industrial machine telemetry streams, validates incoming sensor data, stores clean telemetry into PostgreSQL, routes invalid events to a Dead Letter Queue (DLQ), and orchestrates workflows using Apache Airflow.
+An AI-powered industrial telemetry platform that simulates smart factory monitoring using real-time telemetry streaming, AI-based predictive maintenance, anomaly detection, and industrial dashboards.
 
 ---
 
-# Architecture
+# 🚀 Features
 
-```text id="read1"
+* Real-time machine telemetry streaming
+* AI predictive maintenance
+* AI anomaly detection
+* Live industrial monitoring dashboard
+* Machine health scoring
+* Grafana monitoring & alerts
+* Kafka-based streaming pipeline
+* PostgreSQL telemetry storage
+
+---
+
+# 🏭 Simulated Machines
+
+* WLD_101 — Welding Machine
+* CNC_303 — CNC Machine
+* HYD_404 — Hydraulic Machine
+* PNT_505 — Paint Shop Machine
+* CNV_202 — Conveyor System
+
+---
+
+# 🧠 AI Models
+
+## Predictive Maintenance
+
+* Model: Random Forest Classifier
+* Predicts machine failure probability
+* Generates AI-based risk levels
+
+## Anomaly Detection
+
+* Model: Isolation Forest
+* Detects abnormal machine behavior
+
+---
+
+# 📊 Dashboard Modules
+
+* Live telemetry monitoring
+* Predictive maintenance intelligence
+* AI anomaly detection
+* Machine health analysis
+* Temperature monitoring
+* Vibration monitoring
+* Power consumption analysis
+* Critical machine alerts
+
+---
+
+# 🏗️ System Architecture
+
+```text
 Industrial Machines
         ↓
-Telemetry Producer
+Kafka Producer
         ↓
 Apache Kafka
         ↓
-Validation Consumer
-       ↙        ↘
-Valid Data      Invalid Data
-     ↓               ↓
-PostgreSQL         DLQ
-     ↓
-Airflow Orchestration
+Kafka Consumer
+        ↓
+PostgreSQL Database
+        ↓
+AI Models
+        ↓
+Streamlit Dashboard
+        ↓
+Grafana Alerts
 ```
 
 ---
 
-# Tech Stack
+# ⚙️ Tech Stack
 
-| Technology     | Purpose                      |
-| -------------- | ---------------------------- |
-| Python         | Backend & Streaming Logic    |
-| Apache Kafka   | Real-time Event Streaming    |
-| PostgreSQL     | Telemetry Data Storage       |
-| Docker         | Containerized Infrastructure |
-| Apache Airflow | Workflow Orchestration       |
-| JSON           | Telemetry Message Format     |
-
----
-
-# Features
-
-* Real-time industrial telemetry simulation
-* Kafka-based event streaming pipeline
-* Machine health state generation
-* Sensor metric validation
-* Dead Letter Queue (DLQ) handling
-* PostgreSQL telemetry storage
-* Dockerized infrastructure setup
-* Airflow DAG orchestration
-* Scalable streaming architecture
+* Python
+* Streamlit
+* PostgreSQL
+* Apache Kafka
+* Grafana
+* Docker
+* Scikit-learn
+* Pandas
+* Plotly
 
 ---
 
-# Machine Metrics Simulated
+# 📁 Project Structure
 
-* Temperature
-* Vibration
-* Pressure
-* RPM
-* Power Usage
-* Machine State
-
----
-
-# Project Structure
-
-```text id="read2"
+```text
 industrial-telemetry-platform/
 │
+├── ai-models/
+├── dashboard/
 ├── kafka-streaming/
-│   ├── producer.py
-│   ├── consumer.py
-│   ├── validated_consumer.py
-│   ├── database_consumer.py
-│   ├── dlq_consumer.py
-│   ├── docker-compose.yml
-│
-├── airflow/
-│   ├── dags/
-│   │   └── telemetry_pipeline_dag.py
-│   ├── logs/
-│   ├── plugins/
-│   └── docker-compose.yml
-│
-├── data_lake/
-│
-├── README.md
+├── screenshots/
+├── .env
+├── .gitignore
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-# Pipeline Flow
+# 🔐 Environment Variables
 
-## 1. Telemetry Producer
-
-Generates simulated industrial machine telemetry events and streams them into Kafka topics.
-
-## 2. Validation Consumer
-
-Consumes Kafka events and validates:
-
-* machine states
-* sensor ranges
-* telemetry integrity
-
-## 3. Dead Letter Queue (DLQ)
-
-Invalid telemetry events are redirected to a DLQ pipeline for monitoring and debugging.
-
-## 4. PostgreSQL Storage
-
-Validated telemetry is stored into PostgreSQL for downstream analytics and monitoring.
-
-## 5. Airflow Orchestration
-
-Airflow DAGs orchestrate and monitor pipeline execution workflows.
+```env
+DB_HOST=localhost
+DB_NAME=telemetry_db
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_PORT=5432
+```
 
 ---
 
-# Running the Project
+# ▶️ Run Project
 
-## Start Kafka & PostgreSQL
-
-```bash id="read3"
+```bash
+# Start Docker Services
 docker compose up -d
-```
 
----
-
-## Run Producer
-
-```bash id="read4"
+# Run Kafka Producer
 python producer.py
+
+# Run Kafka Consumer
+python consumer.py
+
+# Train AI Model
+python predictive_maintenance.py
+
+# Launch Dashboard
+streamlit run dashboard.py
 ```
 
 ---
 
-## Run Validation Consumer
+# 📈 Future Enhancements
 
-```bash id="read5"
-python validated_consumer.py
-```
-
----
-
-## Run Database Consumer
-
-```bash id="read6"
-python database_consumer.py
-```
+* Expanded factory machine ecosystem
+* AI-assisted machine inspection
+* Manual diagnostic workflows
+* Image upload for inspection evidence
+* Cloud deployment
+* Full Docker orchestration
 
 ---
 
-## Start Airflow
-
-```bash id="read7"
-docker compose up -d
-```
-
-Open:
-
-```text id="read8"
-http://localhost:8080
-```
-
----
-
-# Airflow DAG
-
-Current DAG:
-
-```text id="read9"
-industrial_telemetry_pipeline
-```
-
-Current task:
-
-```text id="read10"
-run_telemetry_pipeline
-```
-
----
-
-# Future Enhancements
-
-* ML-based anomaly detection
-* Predictive maintenance engine
-* Streamlit monitoring dashboard
-* Cloud storage integration
-* dbt transformations
-* BigQuery analytics
-* Grafana observability dashboards
-* CI/CD deployment pipeline
-
----
-
-# Author
+# 👨‍💻 Author
 
 Prathiksha J
-
----
-
-# Status
-
-🚧 Active Development
-Current Phase: Streaming + Orchestration Infrastructure Complete
