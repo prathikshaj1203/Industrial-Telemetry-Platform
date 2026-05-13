@@ -1,6 +1,9 @@
 from kafka import KafkaConsumer
 import json
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 consumer = KafkaConsumer(
 

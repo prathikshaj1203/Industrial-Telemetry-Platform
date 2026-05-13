@@ -2,17 +2,18 @@ from kafka import KafkaConsumer, KafkaProducer
 import json
 import psycopg2
 import os
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
 # -------------------------------
 # PostgreSQL Connection
 # -------------------------------
-
 connection = psycopg2.connect(
-    host="127.0.0.1",
-    database="telemetry_db",
-    user="postgres",
-    password="root1234",
-    port="5432"
+    host=os.getenv("DB_HOST"),
+    database=os.getenv("DB_NAME"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    port=os.getenv("DB_PORT")
 )
 
 cursor = connection.cursor()

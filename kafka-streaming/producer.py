@@ -3,6 +3,9 @@ import json
 import time
 import sys
 import os
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 sys.path.append(os.path.abspath("../telemetry-simulator"))
 

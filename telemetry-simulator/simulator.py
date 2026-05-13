@@ -1,7 +1,8 @@
 import time
 from machine import Machine
 import json
-
+from dotenv import load_dotenv
+import os
 machines = [
 
     Machine("WLD_101", "Robotic Welding Arm"),
