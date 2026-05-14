@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 import os
 load_dotenv()
+print(os.getenv("DB_PASSWORD"))
 # -------------------------------
 # PostgreSQL Connection
 # -------------------------------
@@ -58,7 +59,7 @@ consumer = KafkaConsumer(
 
     "machine-telemetry",
 
-    bootstrap_servers='localhost:9092',
+    bootstrap_servers='127.0.0.1:9092',
 
     auto_offset_reset='earliest',
 

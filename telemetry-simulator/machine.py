@@ -1,8 +1,6 @@
 import random
 from datetime import datetime
 from states import *
-from dotenv import load_dotenv
-import os
 
 class Machine:
 
