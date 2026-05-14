@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS telemetry_data (
 
     machine_type VARCHAR(100),
 
+    machine_category VARCHAR(50),
+
     state VARCHAR(20),
 
     temperature FLOAT,
@@ -48,6 +50,13 @@ CREATE TABLE IF NOT EXISTS telemetry_data (
 
 )
 """)
+
+# Add machine_category column if it doesn't exist
+try:
+    cursor.execute("ALTER TABLE telemetry_data ADD COLUMN IF NOT EXISTS machine_category VARCHAR(50)")
+    connection.commit()
+except Exception as e:
+    print(f"Column might already exist: {e}")
 
 connection.commit()
 
@@ -130,6 +139,7 @@ for message in consumer:
 
             machine_id,
             machine_type,
+            machine_category,
             state,
             temperature,
             vibration,
@@ -140,12 +150,13 @@ for message in consumer:
 
         )
 
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 
         """, (
 
             data["machine_id"],
             data["machine_type"],
+            data.get("machine_category", None),
             data["state"],
             data["temperature"],
             data["vibration"],

@@ -47,7 +47,9 @@ class Machine:
             2
         )
 
-        rpm = random.randint(*self.rpm_range)
+        rpm = random.randint(
+            *self.rpm_range
+        )
 
         power_usage = round(
             random.uniform(*self.power_range),
@@ -59,8 +61,13 @@ class Machine:
         # ==================================
 
         if (
+
             temperature > self.temp_range[1] * 0.9
-            or vibration > self.vibration_range[1] * 0.9
+
+            or
+
+            vibration > self.vibration_range[1] * 0.9
+
         ):
 
             state = "WARNING"
