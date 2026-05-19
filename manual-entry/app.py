@@ -1,13 +1,29 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+import psycopg2
+import joblib
+import os
+import time
+
+from dotenv import load_dotenv
+from datetime import datetime
+
 from machine_components import machine_components
 from machine_questions import machine_questions
-from datetime import datetime
-import random
-import plotly.express as px
-# ==========================================
+from maintenance_actions import maintenance_actions
+
+# ======================================
+# LOAD ENV
+# ======================================
+
+load_dotenv()
+
+# ======================================
 # PAGE CONFIG
-# ==========================================
+# ======================================
 
 st.set_page_config(
 
@@ -17,9 +33,51 @@ st.set_page_config(
 
 )
 
-# ==========================================
+# ======================================
+# DATABASE CONNECTION
+# ======================================
+
+connection = psycopg2.connect(
+
+    host=os.getenv("DB_HOST"),
+
+    database=os.getenv("DB_NAME"),
+
+    user=os.getenv("DB_USER"),
+
+    password=os.getenv("DB_PASSWORD"),
+
+    port=os.getenv("DB_PORT")
+
+)
+
+cursor = connection.cursor()
+
+# ======================================
+# LOAD MODEL
+# ======================================
+
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
+
+MODEL_PATH = os.path.join(
+
+    BASE_DIR,
+
+    "..",
+
+    "ai-models",
+
+    "predictive_maintenance_model.pkl"
+
+)
+
+predictive_model = joblib.load(MODEL_PATH)
+
+# ======================================
 # CUSTOM CSS
-# ==========================================
+# ======================================
 
 st.markdown("""
 
@@ -28,7 +86,9 @@ st.markdown("""
 .stApp {
 
     background-color: #050816;
+
     color: white;
+
 }
 
 [data-testid="metric-container"] {
@@ -55,25 +115,25 @@ section[data-testid="stSidebar"] {
 
 """, unsafe_allow_html=True)
 
-# ==========================================
+# ======================================
 # TITLE
-# ==========================================
+# ======================================
 
 st.title(
     "🧠 AI Industrial Diagnostic Assistant"
 )
 
 st.caption(
-    "Predict machine failures before breakdown occurs"
+    "Hybrid Predictive Maintenance & Failure Intelligence System"
 )
 
 st.success(
     "🟢 AI Predictive Maintenance Engine Active"
 )
 
-# ==========================================
-# MACHINE SELECTION
-# ==========================================
+# ======================================
+# SIDEBAR
+# ======================================
 
 st.sidebar.header(
     "🏭 Machine Selection"
@@ -91,9 +151,23 @@ selected_category = st.sidebar.selectbox(
 
 )
 
-# ==========================================
-# MACHINE DETAILS
-# ==========================================
+monitoring_type = st.sidebar.selectbox(
+
+    "Select Monitoring Mode",
+
+    [
+
+        "Sensor-Based",
+
+        "Manual Inspection"
+
+    ]
+
+)
+
+# ======================================
+# MACHINE DATA
+# ======================================
 
 machine_data = machine_components[
     selected_category
@@ -107,17 +181,9 @@ components = machine_data[
     "components"
 ]
 
-# ==========================================
-# MACHINE HEADER
-# ==========================================
-
-st.subheader(
-    f"⚙ {machine_type}"
-)
-
-# ==========================================
+# ======================================
 # COMPONENT DISPLAY
-# ==========================================
+# ======================================
 
 st.markdown("## 🔩 Machine Components")
 
@@ -127,97 +193,126 @@ for index, component in enumerate(components):
 
     component_cols[index % 3].info(component)
 
-# ==========================================
-# QUESTION SYSTEM
-# ==========================================
-
-st.markdown("---")
-
-st.subheader(
-    "📝 AI Diagnostic Questionnaire"
-)
-
-questions = machine_questions[
-    selected_category
-]
+# ======================================
+# QUESTION ENGINE
+# ======================================
 
 answers = {}
 
-for question in questions:
+if monitoring_type == "Manual Inspection":
 
-    answers[question] = st.text_input(question)
+    st.markdown("---")
 
-# ==========================================
-# OPERATIONAL INPUTS
-# ==========================================
-
-st.markdown("---")
-
-st.subheader(
-    "📊 Live Operational Metrics"
-)
-
-col1, col2 = st.columns(2)
-
-with col1:
-
-    temperature = st.slider(
-        "Temperature",
-        0.0,
-        150.0,
-        50.0
+    st.subheader(
+        "📝 AI Diagnostic Questionnaire"
     )
 
-    vibration = st.slider(
-        "Vibration",
-        0.0,
-        2.0,
-        0.5
+    questions = machine_questions[
+        selected_category
+    ]
+
+    for item in questions:
+
+        question = item["question"]
+
+        options = item["options"]
+
+        answers[question] = st.selectbox(
+
+            question,
+
+            options,
+
+            key=question
+
+        )
+
+# ======================================
+# SENSOR INPUTS
+# ======================================
+
+if monitoring_type == "Sensor-Based":
+
+    st.markdown("---")
+
+    st.subheader(
+        "📡 Machine Telemetry Inputs"
     )
 
-    pressure = st.slider(
-        "Pressure",
-        0.0,
-        250.0,
-        40.0
-    )
+    col1, col2 = st.columns(2)
 
-with col2:
+    with col1:
 
-    rpm = st.slider(
-        "RPM",
-        0,
-        5000,
-        1000
-    )
+        air_temperature = st.slider(
 
-    power_usage = st.slider(
-        "Power Usage",
-        0.0,
-        2000.0,
-        500.0
-    )
+            "Air Temperature [K]",
 
-    running_hours = st.slider(
-        "Daily Running Hours",
-        0,
-        24,
-        8
-    )
+            290.0,
+            320.0,
 
-# ==========================================
+            300.0
+
+        )
+
+        process_temperature = st.slider(
+
+            "Process Temperature [K]",
+
+            300.0,
+            340.0,
+
+            310.0
+
+        )
+
+        rotational_speed = st.slider(
+
+            "Rotational Speed [rpm]",
+
+            1000,
+            3000,
+
+            1500
+
+        )
+
+    with col2:
+
+        torque = st.slider(
+
+            "Torque [Nm]",
+
+            0.0,
+            80.0,
+
+            40.0
+
+        )
+
+        tool_wear = st.slider(
+
+            "Tool Wear [min]",
+
+            0,
+            300,
+
+            50
+
+        )
+
+# ======================================
 # IMAGE UPLOAD
-# ==========================================
+# ======================================
 
 st.markdown("---")
 
 st.subheader(
-    "📷 Upload Machine Image"
+    "📷 Machine Inspection Image"
 )
 
 uploaded_file = st.file_uploader(
 
-    "Upload image for future AI vision analysis",
+    "Upload machine image for future AI vision analysis",
 
     type=["jpg", "jpeg", "png"]
 
@@ -227,150 +322,521 @@ if uploaded_file:
 
     st.image(
         uploaded_file,
-        width=400
+        use_container_width=True
     )
 
-# ==========================================
-# AI PREDICTION ENGINE
-# ==========================================
+# ======================================
+# RUN BUTTON
+# ======================================
 
 st.markdown("---")
 
-if st.button(
+run_prediction = st.button(
     "🚀 Run AI Failure Diagnosis"
-):
+)
 
-    risk_score = 0
+# ======================================
+# AI ENGINE
+# ======================================
 
-    # ======================================
-    # TEMPERATURE LOGIC
-    # ======================================
+if run_prediction:
 
-    if temperature > 100:
-        risk_score += 40
+    # ==================================
+    # MANUAL FEATURE ENGINEERING
+    # ==================================
 
-    elif temperature > 85:
-        risk_score += 25
+    if monitoring_type == "Manual Inspection":
 
-    # ======================================
-    # VIBRATION LOGIC
-    # ======================================
+        air_temperature = 300
+        process_temperature = 310
+        rotational_speed = 1500
+        torque = 40
+        tool_wear = 50
 
-    if vibration > 1.2:
-        risk_score += 35
+        for question, answer in answers.items():
 
-    elif vibration > 0.8:
-        risk_score += 20
+            if "Cooling" in question:
 
-    # ======================================
-    # PRESSURE LOGIC
-    # ======================================
+                if answer == "Average":
+                    process_temperature += 10
 
-    if pressure < 15:
-        risk_score += 15
+                elif answer == "Poor":
+                    process_temperature += 20
 
-    # ======================================
-    # POWER LOGIC
-    # ======================================
+            if "Vibration" in question:
 
-    if power_usage > 1500:
-        risk_score += 30
+                if answer == "Medium":
+                    rotational_speed += 300
 
-    elif power_usage > 900:
-        risk_score += 15
+                elif answer == "High":
+                    rotational_speed += 600
 
-    # ======================================
-    # RUNNING HOURS
-    # ======================================
+                elif answer == "Severe":
+                    rotational_speed += 900
 
-    if running_hours > 18:
-        risk_score += 20
+            if "Oil leakage" in question:
 
-    elif running_hours > 12:
-        risk_score += 10
+                if answer == "Yes":
+                    torque += 15
 
-    # ======================================
-    # RISK CLASSIFICATION
-    # ======================================
+            if "alignment" in question.lower():
 
-    if risk_score >= 80:
+                if answer == "Misaligned":
+                    rotational_speed += 500
+
+            if "Motor" in question:
+
+                if answer == "Failing":
+                    torque += 20
+
+                elif answer == "Critical":
+                    torque += 30
+
+    # ==================================
+    # MODEL FEATURES
+    # ==================================
+
+    features = np.array([[
+
+        air_temperature,
+
+        process_temperature,
+
+        rotational_speed,
+
+        torque,
+
+        tool_wear
+
+    ]])
+
+    # ==================================
+    # PREDICTION
+    # ==================================
+
+    prediction_probability = predictive_model.predict_proba(
+        features
+    )[0][1]
+
+    failure_probability = round(
+
+        prediction_probability * 100,
+
+        2
+
+    )
+
+    # ==================================
+    # HEALTH SCORE
+    # ==================================
+
+    health_score = 100 - failure_probability
+
+    if tool_wear > 200:
+        health_score -= 15
+
+    if torque > 60:
+        health_score -= 10
+
+    if process_temperature > 325:
+        health_score -= 10
+
+    health_score = max(
+        round(health_score, 2),
+        0
+    )
+
+    # ==================================
+    # RISK LEVEL
+    # ==================================
+
+    if failure_probability >= 80:
 
         risk_level = "🔴 CRITICAL"
 
-        failure_probability = random.randint(
-            90,
-            99
-        )
-
-        estimated_failure = random.randint(
-            1,
-            5
-        )
-
-    elif risk_score >= 50:
+    elif failure_probability >= 60:
 
         risk_level = "🟡 HIGH"
 
-        failure_probability = random.randint(
-            70,
-            89
-        )
-
-        estimated_failure = random.randint(
-            7,
-            20
-        )
-
-    elif risk_score >= 25:
+    elif failure_probability >= 40:
 
         risk_level = "🟠 MODERATE"
-
-        failure_probability = random.randint(
-            40,
-            69
-        )
-
-        estimated_failure = random.randint(
-            20,
-            45
-        )
 
     else:
 
         risk_level = "🟢 LOW"
 
-        failure_probability = random.randint(
-            5,
-            39
-        )
+    # ==================================
+    # RUL
+    # ==================================
 
-        estimated_failure = random.randint(
-            45,
-            120
-        )
+    wear_factor = tool_wear * 0.4
 
-    # ======================================
-    # RANDOM COMPONENT FAILURE
-    # ======================================
+    torque_factor = torque * 1.2
 
-    failed_component = random.choice(
-        components
+    temperature_factor = (
+
+        process_temperature - 300
+
+    ) * 1.5
+
+    rpm_factor = (
+
+        rotational_speed / 100
+
     )
 
-    # ======================================
-    # DISPLAY RESULTS
-    # ======================================
+    total_degradation = (
+
+        wear_factor +
+
+        torque_factor +
+
+        temperature_factor +
+
+        rpm_factor
+
+    )
+
+    remaining_useful_life = max(
+
+        round(
+
+            300 - total_degradation,
+
+            2
+
+        ),
+
+        5
+
+    )
+
+    # ==================================
+    # COMPONENT PREDICTION
+    # ==================================
+
+    if tool_wear > 220:
+
+        failed_component = "Welding Tip"
+
+    elif torque > 65:
+
+        failed_component = "Servo Motor"
+
+    elif process_temperature > 325:
+
+        failed_component = "Cooling Unit"
+
+    elif rotational_speed > 2500:
+
+        failed_component = "Joint Actuator"
+
+    elif air_temperature > 315:
+
+        failed_component = "Power Supply"
+
+    else:
+
+        failed_component = "Servo Motor"
+
+    # ==================================
+    # MAINTENANCE DATA
+    # ==================================
+
+    maintenance_data = maintenance_actions.get(
+
+        failed_component,
+
+        {
+
+            "issue":
+            "General degradation detected.",
+
+            "severity":
+            "MODERATE",
+
+            "downtime":
+            "Unknown",
+
+            "recovery": [
+
+                "Perform diagnostics",
+
+                "Inspect components"
+
+            ]
+
+        }
+
+    )
+
+        # ==================================
+    # ANOMALY DETECTION ENGINE
+    # ==================================
+
+    anomaly_score = 0
+
+    # ==================================
+    # TEMPERATURE ANOMALY
+    # ==================================
+
+    if process_temperature > 325:
+
+        anomaly_score += 30
+
+    elif process_temperature > 318:
+
+        anomaly_score += 15
+
+    # ==================================
+    # TORQUE ANOMALY
+    # ==================================
+
+    if torque > 70:
+
+        anomaly_score += 30
+
+    elif torque > 55:
+
+        anomaly_score += 15
+
+    # ==================================
+    # TOOL WEAR ANOMALY
+    # ==================================
+
+    if tool_wear > 250:
+
+        anomaly_score += 25
+
+    elif tool_wear > 180:
+
+        anomaly_score += 10
+
+    # ==================================
+    # RPM ANOMALY
+    # ==================================
+
+    if rotational_speed > 2700:
+
+        anomaly_score += 20
+
+    elif rotational_speed > 2200:
+
+        anomaly_score += 10
+
+    # ==================================
+    # FINAL CLASSIFICATION
+    # ==================================
+
+    if anomaly_score >= 70:
+
+        anomaly_level = "🔴 Severe Anomaly"
+
+    elif anomaly_score >= 40:
+
+        anomaly_level = "🟠 Moderate Anomaly"
+
+    elif anomaly_score >= 20:
+
+        anomaly_level = "🟡 Mild Anomaly"
+
+    else:
+
+        anomaly_level = "🟢 Normal"
+
+    # ==================================
+    # FEATURE IMPORTANCE
+    # ==================================
+
+    feature_importance = {
+
+        "Air Temperature":
+        air_temperature / 320,
+
+        "Process Temperature":
+        process_temperature / 340,
+
+        "Rotational Speed":
+        rotational_speed / 3000,
+
+        "Torque":
+        torque / 80,
+
+        "Tool Wear":
+        tool_wear / 300
+
+    }
+
+    # ==================================
+    # SAVE HISTORY
+    # ==================================
+
+    cursor.execute(
+
+        """
+
+        INSERT INTO machine_diagnosis_history (
+
+            machine_type,
+            category,
+            monitoring_type,
+            temperature,
+            vibration,
+            pressure,
+            rpm,
+            power_usage,
+            failure_probability,
+            health_score,
+            risk_level,
+            failed_component,
+            estimated_failure,
+            timestamp
+
+        )
+
+        VALUES (
+
+            %s, %s, %s, %s, %s, %s,
+
+            %s, %s, %s, %s, %s,
+
+            %s, %s, %s
+
+        )
+
+        """,
+
+        (
+
+            machine_type,
+
+            selected_category,
+
+            monitoring_type,
+
+            float(air_temperature),
+
+            float(process_temperature),
+
+            float(torque),
+
+            float(rotational_speed),
+
+            float(tool_wear),
+
+            float(failure_probability),
+
+            float(health_score),
+
+            risk_level,
+
+            failed_component,
+
+            f"{remaining_useful_life} Hours",
+
+            datetime.now()
+
+        )
+
+    )
+
+    connection.commit()
+
+    # ==================================
+    # RESULTS
+    # ==================================
 
     st.markdown("---")
 
     st.header(
         "🤖 AI Failure Prediction Results"
     )
+        # ==================================
+    # REAL-TIME ALERT ENGINE
+    # ==================================
 
-    metric1, metric2, metric3 = st.columns(3)
+    active_alerts = []
+
+    if process_temperature > 330:
+
+        active_alerts.append({
+
+            "level": "CRITICAL",
+
+            "message":
+            "Extreme process temperature detected"
+
+        })
+
+    elif process_temperature > 320:
+
+        active_alerts.append({
+
+            "level": "WARNING",
+
+            "message":
+            "Elevated process temperature"
+
+        })
+
+    if torque > 70:
+
+        active_alerts.append({
+
+            "level": "CRITICAL",
+
+            "message":
+            "Torque overload detected"
+
+        })
+
+    elif torque > 60:
+
+        active_alerts.append({
+
+            "level": "WARNING",
+
+            "message":
+            "Torque instability observed"
+
+        })
+    # ==================================
+    # LIVE ALERT DISPLAY
+    # ==================================
+
+    if len(active_alerts) > 0:
+
+        st.subheader("🚨 Live Industrial Alerts")
+
+        for alert in active_alerts:
+
+            if alert["level"] == "CRITICAL":
+
+                st.error(
+
+                    f"🚨 {alert['message']}"
+
+                )
+
+            else:
+
+                st.warning(
+
+                    f"⚠ {alert['message']}"
+
+                )
+
+    else:
+
+        st.success(
+            "✅ No active industrial alerts"
+        )
+
+    metric1, metric2, metric3, metric4, metric5 = st.columns(5)
 
     metric1.metric(
-        "Failure Risk",
+        "Risk Level",
         risk_level
     )
 
@@ -380,72 +846,189 @@ if st.button(
     )
 
     metric3.metric(
-        "Estimated Failure Window",
-        f"{estimated_failure} Days"
+        "Machine Health",
+        f"{health_score}%"
     )
 
+    metric4.metric(
+        "Remaining Useful Life",
+        f"{remaining_useful_life} Hours"
+    )
+
+    metric5.metric(
+
+        "Anomaly Status",
+
+        anomaly_level
+
+    )
+    # ==================================
+    # DIGITAL TWIN STATUS PANEL
+    # ==================================
+
+    st.subheader("🧩 Digital Twin Machine Status")
+
+    twin_cols = st.columns(3)
+
+    component_status = {}
+
+    for component in components:
+
+        component_status[component] = "Healthy"
+
+    component_status[failed_component] = "Critical"
+
+    for index, component in enumerate(components):
+
+        status = component_status[component]
+
+        with twin_cols[index % 3]:
+
+            if status == "Critical":
+
+                st.error(
+
+                    f"""
+
+                    🔴 {component}
+
+                    Status: Critical
+
+                    """
+
+                )
+
+            else:
+
+                st.success(
+
+                    f"""
+
+                    🟢 {component}
+
+                    Status: Healthy
+
+                    """
+
+                )
+
+    # ==================================
+    # COMPONENT ALERT
+    # ==================================
+
     st.error(
-        f"⚠ Likely Faulty Component: "
-        f"{failed_component}"
+        f"⚠ Likely Faulty Component: {failed_component}"
+    )
+
+    # ==================================
+    # ROOT CAUSE
+    # ==================================
+
+    st.subheader(
+        "🔍 Root Cause Analysis"
     )
 
     st.warning(
-        "🛠 Recommended Action: "
-        "Immediate predictive maintenance inspection required."
+        maintenance_data["issue"]
     )
 
-    # ======================================
-    # DIAGNOSTIC SUMMARY
-    # ======================================
-
-    st.markdown("---")
+    # ==================================
+    # RECOVERY
+    # ==================================
 
     st.subheader(
-        "📋 Diagnostic Summary"
+        "🛠 Recovery Actions"
     )
 
-    summary_data = {
+    for action in maintenance_data["recovery"]:
 
-        "Machine Type": [machine_type],
+        st.success(
+            f"✔ {action}"
+        )
 
-        "Category": [selected_category],
+    # ==================================
+    # DOWNTIME
+    # ==================================
+        # ==================================
+    # PREDICTIVE MAINTENANCE SCHEDULER
+    # ==================================
 
-        "Failure Risk": [risk_level],
-
-        "Failure Probability": [
-            f"{failure_probability}%"
-        ],
-
-        "Likely Failed Component": [
-            failed_component
-        ],
-
-        "Estimated Failure Window": [
-            f"{estimated_failure} Days"
-        ],
-
-        "Timestamp": [
-            datetime.now()
-        ]
-
-    }
-
-    summary_df = pd.DataFrame(
-        summary_data
+    st.subheader(
+        "📅 Predictive Maintenance Scheduler"
     )
 
-    st.dataframe(
-        summary_df,
-        use_container_width=True
+    if remaining_useful_life <= 24:
+
+        maintenance_priority = "🔴 Immediate"
+
+        maintenance_window = "Within 6 Hours"
+
+        shutdown_status = "Emergency shutdown recommended"
+
+    elif remaining_useful_life <= 72:
+
+        maintenance_priority = "🟠 High"
+
+        maintenance_window = "Within 24 Hours"
+
+        shutdown_status = "Controlled maintenance required"
+
+    elif remaining_useful_life <= 150:
+
+        maintenance_priority = "🟡 Medium"
+
+        maintenance_window = "Within 3 Days"
+
+        shutdown_status = "Inspection scheduling recommended"
+
+    else:
+
+        maintenance_priority = "🟢 Low"
+
+        maintenance_window = "Within 7 Days"
+
+        shutdown_status = "Routine monitoring sufficient"
+
+    sched1, sched2, sched3 = st.columns(3)
+
+    sched1.metric(
+
+        "Maintenance Priority",
+
+        maintenance_priority
+
     )
 
-    # ==========================================
-    # AI FAILURE GAUGE METER
-    # ==========================================
+    sched2.metric(
 
-    import plotly.graph_objects as go
+        "Recommended Window",
 
-    st.subheader("🎯 AI Failure Probability Meter")
+        maintenance_window
+
+    )
+
+    sched3.metric(
+
+        "Operational Status",
+
+        shutdown_status
+
+    )
+    st.subheader(
+        "⏳ Estimated Downtime"
+    )
+
+    st.info(
+        maintenance_data["downtime"]
+    )
+
+    # ==================================
+    # FAILURE GAUGE
+    # ==================================
+
+    st.subheader(
+        "🎯 AI Failure Probability Meter"
+    )
 
     gauge_chart = go.Figure(
 
@@ -456,320 +1039,301 @@ if st.button(
             value=failure_probability,
 
             title={
-
                 'text': "Failure Probability %"
-
             },
 
             gauge={
 
                 'axis': {
-
                     'range': [0, 100]
-
-                },
-
-                'bar': {
-
-                    'color': "red"
-
                 },
 
                 'steps': [
 
                     {
-
                         'range': [0, 40],
-
                         'color': "green"
-
                     },
 
                     {
-
                         'range': [40, 70],
-
                         'color': "yellow"
-
                     },
 
                     {
-
                         'range': [70, 100],
-
                         'color': "red"
-
                     }
 
                 ]
+
             }
+
         )
+
     )
 
     st.plotly_chart(
+
         gauge_chart,
-        use_container_width=True
+
+        use_container_width=True,
+
+        key="failure_gauge"
+
     )
 
-    # ==========================================
-    # MACHINE HEALTH DONUT CHART
-    # ==========================================
+    # ==================================
+    # HEALTH RING
+    # ==================================
 
-    st.subheader("💚 Machine Health Overview")
+    st.subheader(
+        "💚 Machine Health Ring"
+    )
 
-    health_remaining = 100 - failure_probability
+    health_ring = go.Figure(
 
-    health_df = pd.DataFrame({
+        go.Indicator(
 
-        'Status': [
+            mode="gauge+number",
 
-            'Health',
+            value=health_score,
 
-            'Risk'
+            title={
+                'text': "Machine Health %"
+            },
 
-        ],
+            gauge={
 
-        'Value': [
+                'axis': {
+                    'range': [0, 100]
+                }
 
-            health_remaining,
+            }
 
-            failure_probability
-
-        ]
-
-    })
-
-    health_chart = px.pie(
-
-        health_df,
-
-        names='Status',
-
-        values='Value',
-
-        hole=0.7,
-
-        title='Machine Health Distribution'
+        )
 
     )
 
     st.plotly_chart(
-        health_chart,
-        use_container_width=True
+
+        health_ring,
+
+        use_container_width=True,
+
+        key="health_ring"
+
     )
 
-    # ==========================================
-    # COMPONENT RISK ANALYSIS
-    # ==========================================
+    # ==================================
+    # FEATURE IMPORTANCE
+    # ==================================
 
-    st.subheader("🧩 Component Failure Risk Analysis")
+    st.subheader(
+        "🧠 AI Feature Importance Analysis"
+    )
 
-    component_risk = {
+    importance_df = pd.DataFrame({
 
-        component: random.randint(10, 95)
+        "Feature": feature_importance.keys(),
 
-        for component in components
-    }
-
-    component_df = pd.DataFrame({
-
-        'Component': component_risk.keys(),
-
-        'Risk': component_risk.values()
+        "Impact": feature_importance.values()
 
     })
 
-    component_chart = px.bar(
+    importance_chart = px.bar(
 
-        component_df,
+        importance_df,
 
-        x='Component',
+        x="Feature",
 
-        y='Risk',
+        y="Impact",
 
-        color='Risk',
+        color="Impact",
 
-        text='Risk',
+        text="Impact",
 
-        title='Component Risk Analysis'
+        title="Feature Contribution Analysis"
 
     )
 
     st.plotly_chart(
-        component_chart,
+
+        importance_chart,
+
         use_container_width=True
-    )
-
-    # ==========================================
-    # FUTURE FAILURE ESCALATION
-    # ==========================================
-
-    st.subheader("📈 Future Failure Escalation Prediction")
-
-    future_days = [
-
-        'Day 1',
-
-        'Day 5',
-
-        'Day 10',
-
-        'Day 15',
-
-        'Day 20'
-
-    ]
-
-    future_risk = [
-
-        random.randint(20, 40),
-
-        random.randint(35, 50),
-
-        random.randint(50, 65),
-
-        random.randint(65, 80),
-
-        failure_probability
-
-    ]
-
-    future_df = pd.DataFrame({
-
-        'Timeline': future_days,
-
-        'Risk': future_risk
-
-    })
-
-    future_chart = px.line(
-
-        future_df,
-
-        x='Timeline',
-
-        y='Risk',
-
-        markers=True,
-
-        title='AI Future Risk Forecast'
 
     )
 
-    st.plotly_chart(
-        future_chart,
+# ======================================
+# HISTORY DASHBOARD
+# ======================================
+
+st.markdown("---")
+
+st.header(
+    "📜 Diagnosis History Dashboard"
+)
+
+history_query = """
+
+SELECT *
+
+FROM machine_diagnosis_history
+
+ORDER BY timestamp DESC
+
+LIMIT 20
+
+"""
+
+history_df = pd.read_sql(
+
+    history_query,
+
+    connection
+
+)
+
+if len(history_df) > 0:
+
+    st.dataframe(
+
+        history_df,
+
         use_container_width=True
-    )
-
-    # ==========================================
-    # LIVE SENSOR GRAPH
-    # ==========================================
-
-    st.subheader("📡 Live Sensor Feed")
-
-    sensor_df = pd.DataFrame({
-
-        'Time': range(10),
-
-        'Temperature': [
-
-            random.randint(50, 100)
-
-            for _ in range(10)
-        ]
-
-    })
-
-    sensor_chart = px.line(
-
-        sensor_df,
-
-        x='Time',
-
-        y='Temperature',
-
-        markers=True,
-
-        title='Real-Time Sensor Temperature Feed'
 
     )
+# ======================================
+# LIVE TELEMETRY STREAM
+# ======================================
 
-    st.plotly_chart(
-        sensor_chart,
-        use_container_width=True
+st.markdown("---")
+
+st.header("📡 Live Telemetry Streaming")
+
+
+
+start_stream = st.checkbox(
+    "Enable Live Telemetry Simulation"
+)
+
+if start_stream and not run_prediction:
+
+    st.warning(
+        "Run AI diagnosis before starting telemetry stream."
     )
 
-    # ==========================================
-    # AI INSIGHTS
-    # ==========================================
+if start_stream and run_prediction:
 
-    st.subheader("🧠 AI Insights")
+    telemetry_placeholder = st.empty()
 
-    insights = [
+    chart_placeholder = st.empty()
 
-        "Temperature spike detected",
+    telemetry_history = []
 
-        "Abnormal vibration pattern identified",
+    for i in range(20):
 
-        "Cooling efficiency reducing",
+        simulated_temperature = round(
 
-        "Motor load instability observed",
+            np.random.normal(
+                process_temperature,
+                2
+            ),
 
-        "Potential bearing wear detected"
+            2
 
-    ]
-
-    for insight in insights:
-
-        st.info(insight)
-
-    # ==========================================
-    # MAINTENANCE PRIORITY
-    # ==========================================
-
-    st.subheader("🛠 Maintenance Recommendation")
-
-    if failure_probability >= 80:
-
-        st.error(
-            "🚨 Immediate shutdown recommended"
         )
 
-    elif failure_probability >= 60:
+        simulated_torque = round(
 
-        st.warning(
-            "⚠ Maintenance required within 7 days"
+            np.random.normal(
+                torque,
+                1.5
+            ),
+
+            2
+
         )
 
-    else:
+        simulated_rpm = round(
 
-        st.success(
-            "✅ Machine operating within safe limits"
+            np.random.normal(
+                rotational_speed,
+                50
+            ),
+
+            2
+
         )
 
-    # ==========================================
-    # AI IMAGE INSPECTION
-    # ==========================================
+        telemetry_history.append({
 
-    st.subheader("📷 AI Visual Inspection")
+            "Time": i,
 
-    if uploaded_file:
+            "Temperature": simulated_temperature,
 
-        st.success(
-            "Image uploaded successfully"
+            "Torque": simulated_torque,
+
+            "RPM": simulated_rpm
+
+        })
+
+        live_df = pd.DataFrame(
+            telemetry_history
         )
 
-        st.info(
+        telemetry_placeholder.dataframe(
 
-            "Future AI vision model will detect:\n"
+            live_df.tail(5),
 
-            "- Cracks\n"
+            use_container_width=True
 
-            "- Corrosion\n"
-
-            "- Overheating\n"
-
-            "- Surface damage\n"
-
-            "- Oil leakage"
         )
+
+        live_chart = px.line(
+
+            live_df,
+
+            x="Time",
+
+            y=[
+
+                "Temperature",
+
+                "Torque",
+
+                "RPM"
+
+            ],
+
+            title="Real-Time Telemetry Feed"
+
+        )
+
+        live_chart.update_layout(
+
+            paper_bgcolor="#050816",
+
+            plot_bgcolor="#050816",
+
+            font=dict(color="white")
+
+        )
+
+        chart_placeholder.plotly_chart(
+
+            live_chart,
+
+            use_container_width=True,
+
+            key=f"live_chart_{i}"
+
+        )
+
+        time.sleep(0.5)
+# ======================================
+# CLOSE DATABASE
+# ======================================
+
+connection.close()

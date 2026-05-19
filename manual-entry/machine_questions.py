@@ -2,221 +2,344 @@ machine_questions = {
 
     "Welding": [
 
-        "How many days has the machine been running?",
+        {
+            "question": "Oil leakage detected?",
+            "options": [
+                "Yes",
+                "No"
+            ]
+        },
 
-        "When was the last maintenance performed?",
+        {
+            "question": "Cooling efficiency status?",
+            "options": [
+                "Good",
+                "Average",
+                "Poor"
+            ]
+        },
 
-        "Average operational hours per day?",
+        {
+            "question": "Vibration severity?",
+            "options": [
+                "Low",
+                "Medium",
+                "High",
+                "Severe"
+            ]
+        },
 
-        "Any overheating observed near welding joints?",
+        {
+            "question": "Welding arm alignment?",
+            "options": [
+                "Stable",
+                "Misaligned"
+            ]
+        },
 
-        "Any abnormal vibration detected recently?",
-
-        "Any sparks or irregular arc formation noticed?",
-
-        "Is the cooling system functioning properly?",
-
-        "Any sudden power fluctuation observed?"
+        {
+            "question": "Motor condition?",
+            "options": [
+                "Normal",
+                "Failing",
+                "Critical"
+            ]
+        }
 
     ],
 
     "CNC": [
 
-        "How many days has the machine been running?",
+        {
+            "question": "Spindle vibration level?",
+            "options": [
+                "Low",
+                "Medium",
+                "High",
+                "Severe"
+            ]
+        },
 
-        "When was the spindle last serviced?",
+        {
+            "question": "Cutting accuracy condition?",
+            "options": [
+                "Stable",
+                "Fluctuating",
+                "Critical"
+            ]
+        },
 
-        "Any cutting instability observed?",
+        {
+            "question": "Coolant circulation status?",
+            "options": [
+                "Good",
+                "Average",
+                "Poor"
+            ]
+        },
 
-        "Any abnormal spindle vibration?",
+        {
+            "question": "Tool wear condition?",
+            "options": [
+                "Normal",
+                "Medium",
+                "High",
+                "Severe"
+            ]
+        },
 
-        "Any coolant leakage detected?",
-
-        "Average machining hours per day?",
-
-        "Any overheating near cutting tools?",
-
-        "Any unusual motor noise observed?"
+        {
+            "question": "Power load stability?",
+            "options": [
+                "Stable",
+                "Fluctuating",
+                "Critical"
+            ]
+        }
 
     ],
 
     "Conveyor": [
 
-        "How many days has conveyor been operational?",
+        {
+            "question": "Belt alignment condition?",
+            "options": [
+                "Stable",
+                "Misaligned"
+            ]
+        },
 
-        "When was the belt last replaced?",
+        {
+            "question": "Roller vibration level?",
+            "options": [
+                "Low",
+                "Medium",
+                "High",
+                "Severe"
+            ]
+        },
 
-        "Any unusual belt slipping observed?",
+        {
+            "question": "Motor temperature condition?",
+            "options": [
+                "Normal",
+                "Average",
+                "Poor",
+                "Critical"
+            ]
+        },
 
-        "Any roller misalignment detected?",
+        {
+            "question": "Load handling efficiency?",
+            "options": [
+                "Good",
+                "Average",
+                "Poor"
+            ]
+        },
 
-        "Any abnormal vibration detected?",
-
-        "Any sensor switching delays observed?",
-
-        "Average runtime per day?",
-
-        "Any motor overheating observed?"
+        {
+            "question": "Conveyor noise abnormality?",
+            "options": [
+                "Yes",
+                "No"
+            ]
+        }
 
     ],
 
     "Robotics": [
 
-        "How many operational cycles completed?",
+        {
+            "question": "Servo motor condition?",
+            "options": [
+                "Normal",
+                "Failing",
+                "Critical"
+            ]
+        },
 
-        "When was actuator calibration performed?",
+        {
+            "question": "Joint vibration level?",
+            "options": [
+                "Low",
+                "Medium",
+                "High",
+                "Severe"
+            ]
+        },
 
-        "Any robotic arm lag observed?",
+        {
+            "question": "Arm movement precision?",
+            "options": [
+                "Stable",
+                "Fluctuating",
+                "Critical"
+            ]
+        },
 
-        "Any joint overheating detected?",
+        {
+            "question": "Cooling fan condition?",
+            "options": [
+                "Good",
+                "Average",
+                "Poor"
+            ]
+        },
 
-        "Any sensor communication delay?",
-
-        "Any sudden movement instability?",
-
-        "Average operational hours daily?",
-
-        "Any servo motor noise observed?"
+        {
+            "question": "Electrical fluctuation detected?",
+            "options": [
+                "Yes",
+                "No"
+            ]
+        }
 
     ],
 
     "PressMachine": [
 
-        "How many production cycles completed?",
+        {
+            "question": "Hydraulic pressure condition?",
+            "options": [
+                "Stable",
+                "Fluctuating",
+                "Critical"
+            ]
+        },
 
-        "When was hydraulic maintenance performed?",
+        {
+            "question": "Oil leakage detected?",
+            "options": [
+                "Yes",
+                "No"
+            ]
+        },
 
-        "Any abnormal hydraulic pressure drop?",
+        {
+            "question": "Ram vibration level?",
+            "options": [
+                "Low",
+                "Medium",
+                "High",
+                "Severe"
+            ]
+        },
 
-        "Any fluid leakage detected?",
+        {
+            "question": "Cooling efficiency?",
+            "options": [
+                "Good",
+                "Average",
+                "Poor"
+            ]
+        },
 
-        "Any overheating near motor drive?",
-
-        "Any unusual vibration detected?",
-
-        "Average runtime per day?",
-
-        "Any delay in press response time?"
+        {
+            "question": "Mechanical stress condition?",
+            "options": [
+                "Normal",
+                "Medium",
+                "High",
+                "Critical"
+            ]
+        }
 
     ],
 
     "Assembly": [
 
-        "How many assembly cycles completed?",
+        {
+            "question": "Assembly precision status?",
+            "options": [
+                "Stable",
+                "Fluctuating",
+                "Critical"
+            ]
+        },
 
-        "When was alignment calibration performed?",
+        {
+            "question": "Motor vibration level?",
+            "options": [
+                "Low",
+                "Medium",
+                "High",
+                "Severe"
+            ]
+        },
 
-        "Any actuator delay observed?",
+        {
+            "question": "Production speed stability?",
+            "options": [
+                "Stable",
+                "Fluctuating"
+            ]
+        },
 
-        "Any safety switch malfunction detected?",
+        {
+            "question": "Overheating observed?",
+            "options": [
+                "Yes",
+                "No"
+            ]
+        },
 
-        "Any abnormal vibration observed?",
-
-        "Average operating hours daily?",
-
-        "Any motor overheating observed?",
-
-        "Any system communication delay?"
+        {
+            "question": "Power stability condition?",
+            "options": [
+                "Good",
+                "Average",
+                "Poor"
+            ]
+        }
 
     ],
 
     "Packaging": [
 
-        "How many packaging cycles completed?",
+        {
+            "question": "Packaging belt alignment?",
+            "options": [
+                "Stable",
+                "Misaligned"
+            ]
+        },
 
-        "When was sealing unit serviced?",
+        {
+            "question": "Motor condition?",
+            "options": [
+                "Normal",
+                "Failing",
+                "Critical"
+            ]
+        },
 
-        "Any conveyor misalignment detected?",
+        {
+            "question": "Vibration intensity?",
+            "options": [
+                "Low",
+                "Medium",
+                "High",
+                "Severe"
+            ]
+        },
 
-        "Any packaging defects observed?",
+        {
+            "question": "Sensor response condition?",
+            "options": [
+                "Good",
+                "Average",
+                "Poor"
+            ]
+        },
 
-        "Any barcode scanner malfunction?",
-
-        "Any motor overheating observed?",
-
-        "Average operational hours daily?",
-
-        "Any unusual vibration detected?"
-
-    ],
-
-    "HVAC": [
-
-        "How many days has HVAC been running?",
-
-        "When was filter replacement performed?",
-
-        "Any cooling inefficiency observed?",
-
-        "Any compressor overheating detected?",
-
-        "Any abnormal fan vibration?",
-
-        "Any refrigerant leakage observed?",
-
-        "Average runtime per day?",
-
-        "Any unusual compressor noise?"
-
-    ],
-
-    "Cooling": [
-
-        "How many days has cooling system been operational?",
-
-        "When was coolant replaced?",
-
-        "Any coolant leakage observed?",
-
-        "Any abnormal pressure fluctuation?",
-
-        "Any pump motor overheating?",
-
-        "Any unusual vibration detected?",
-
-        "Average runtime daily?",
-
-        "Any flow sensor instability observed?"
-
-    ],
-
-    "PowerSystems": [
-
-        "How many backup cycles completed?",
-
-        "When was battery inspection performed?",
-
-        "Any voltage fluctuation observed?",
-
-        "Any battery overheating detected?",
-
-        "Any cooling failure observed?",
-
-        "Any abnormal thermal spike detected?",
-
-        "Average load percentage daily?",
-
-        "Any inverter instability detected?"
-
-    ],
-
-    "QualityInspection": [
-
-        "How many inspections completed today?",
-
-        "When was camera calibration performed?",
-
-        "Any image detection delay observed?",
-
-        "Any AI processing lag detected?",
-
-        "Any lighting inconsistency observed?",
-
-        "Any sensor communication instability?",
-
-        "Average runtime daily?",
-
-        "Any overheating in processing unit?"
+        {
+            "question": "Unexpected shutdown detected?",
+            "options": [
+                "Yes",
+                "No"
+            ]
+        }
 
     ]
 

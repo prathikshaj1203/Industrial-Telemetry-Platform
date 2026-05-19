@@ -103,14 +103,38 @@ os.makedirs(RAW_DATA_PATH, exist_ok=True)
 VALID_STATES = ["NORMAL", "WARNING", "CRITICAL"]
 
 def validate_telemetry(data):
+    # Safely access fields to avoid KeyError from malformed events
+    state = data.get("state")
+    if state is None:
+        return False, "Missing state"
 
-    if data["state"] not in VALID_STATES:
-        return False, "Invalid machine state"
+    # normalize state for comparison
+    try:
+        state_norm = state.upper()
+    except Exception:
+        return False, "Invalid state type"
 
-    if data["temperature"] < 0 or data["temperature"] > 150:
+    if state_norm not in VALID_STATES:
+        return False, f"Invalid machine state: {state}"
+
+    temperature = data.get("temperature")
+    if temperature is None:
+        return False, "Missing temperature"
+    try:
+        temp_val = float(temperature)
+    except Exception:
+        return False, "Invalid temperature type"
+    if temp_val < 0 or temp_val > 150:
         return False, "Invalid temperature value"
 
-    if data["vibration"] < 0:
+    vibration = data.get("vibration")
+    if vibration is None:
+        return False, "Missing vibration"
+    try:
+        vib_val = float(vibration)
+    except Exception:
+        return False, "Invalid vibration type"
+    if vib_val < 0:
         return False, "Invalid vibration value"
 
     return True, "Valid telemetry"

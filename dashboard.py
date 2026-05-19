@@ -681,6 +681,7 @@ st.title("🏭 Industrial Telemetry Monitoring Dashboard")
 st.success(
     "🟢 SYSTEM STATUS: ALL PIPELINES OPERATIONAL"
 )
+
 st.caption(
     f"🕒 Last Updated: "
     f"{pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}"
@@ -765,6 +766,8 @@ else:
 
     filtered_df = df.copy()
 
+
+
 st.sidebar.header("🔍 Machine Filter")
 
 selected_machine = st.sidebar.selectbox(
@@ -806,25 +809,147 @@ filtered_df['health_score'] = filtered_df.apply(
 # FAILURE PREDICTION
 # ==========================================
 
+# ==========================================
+# FAILURE PREDICTION
+# ==========================================
+
 prediction_features = filtered_df[
+
     [
+
         'temperature',
+
         'vibration',
-        'pressure',
+
         'rpm',
+
+        'pressure',
+
         'power_usage'
+
     ]
+
+].copy()
+
+# ==========================================
+# MAP OLD TELEMETRY TO ML MODEL FEATURES
+# ==========================================
+
+prediction_features.columns = [
+
+    'Air temperature [K]',
+
+    'Process temperature [K]',
+
+    'Rotational speed [rpm]',
+
+    'Torque [Nm]',
+
+    'Tool wear [min]'
+
 ]
 
+# ==========================================
+# AI PREDICTION
+# ==========================================
+
 filtered_df['failure_probability'] = (
+
     predictive_model.predict_proba(
+
         prediction_features
+
     )[:, 1]
+
 )
 
 filtered_df['failure_percentage'] = (
+
     filtered_df['failure_probability'] * 100
+
 ).round(2)
+
+# ==========================================
+# EXECUTIVE COMMAND CENTER
+# ==========================================
+
+st.markdown("---")
+
+st.subheader(
+    "🏭 Executive Operations Command Center"
+)
+
+# ==========================================
+# KPI CALCULATIONS
+# ==========================================
+
+total_machines = filtered_df["machine_id"].nunique()
+
+critical_alerts = len(
+
+    filtered_df[
+        filtered_df["health_score"] < 40
+    ]
+
+)
+
+average_health = round(
+
+    filtered_df["health_score"].mean(),
+
+    2
+
+)
+
+active_anomalies = len(
+
+    filtered_df[
+        filtered_df["health_score"] < 60
+    ]
+
+)
+
+system_stability = max(
+
+    round(
+        100 - active_anomalies * 2,
+        2
+    ),
+
+    0
+
+)
+
+# ==========================================
+# KPI DISPLAY
+# ==========================================
+
+kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
+
+kpi1.metric(
+    "Machines Online",
+    total_machines
+)
+
+kpi2.metric(
+    "Critical Alerts",
+    critical_alerts
+)
+
+kpi3.metric(
+    "Avg Health Score",
+    f"{average_health}%"
+)
+
+kpi4.metric(
+    "Active Anomalies",
+    active_anomalies
+)
+
+kpi5.metric(
+    "System Stability",
+    f"{system_stability}%"
+)
 
 # ==========================================
 # RISK LEVEL
